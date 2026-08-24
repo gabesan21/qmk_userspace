@@ -15,3 +15,4 @@ Profile: [[pop/PROJECT|QMK Userspace]]
 ## Future ideas (no epoch)
 
 - Keymap pessoal do Dilemma V3 (`bastardkb/dilemma/3x5_3_procyon`, base `vendor`) — vira época via `plan-roadmap` ao concluir a Epoch 1.
+- Macros com variáveis sensíveis — antes, decidir: repo privado **ou** segredos em arquivo gitignored (ver Decisions no [[pop/PROJECT|PROJECT]]).

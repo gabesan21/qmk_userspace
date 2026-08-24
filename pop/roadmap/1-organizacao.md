@@ -30,8 +30,8 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| `1.2.1-skill-build-flash` | Skill de build local (`qmk compile`, devcontainer) + download do artifact da CI + flash (`.uf2`/bootloader). · size: M | not started |
-| `1.2.2-phase-verification` | Valida a skill executando o build de ao menos um target (ou via CI). · size: S | not started |
+| `1.2.1-skill-build-flash` | Skill de build **sempre local** (`qmk compile`; CI desativada por decisão — macros com dados sensíveis) + flash (`.uf2`/bootloader). · size: M | not started |
+| `1.2.2-phase-verification` | Valida a skill executando o build local de ao menos um target. · size: S | not started |
 
 ## Phase 1.3 — Notas e decisões
 

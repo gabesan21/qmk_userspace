@@ -48,9 +48,9 @@ Content changes enter through triage: direct fix, the **no-kanban route** (the c
 
 | Check | Command |
 |-------|---------|
-| Build | `qmk compile -kb <keyboard> -km vendor` (requer `qmk_firmware` configurado; a CI compila contra `bastardkb/bastardkb-qmk@main`) |
+| Build | `qmk compile -kb <keyboard> -km vendor` (sempre local; requer `qmk_firmware` configurado — a CI **não** é usada, por decisão) |
 | Formatter | `clang-format` (`.clang-format` na raiz) |
-| Tests | sem suíte local — a validação é o build (workflow `build_binaries.yaml`) |
+| Tests | sem suíte — a validação é o build local |
 
 ## Essential rules
 
