@@ -28,7 +28,7 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| `1.2.2-phase-verification` | Roda o script de ponta a ponta (build de ao menos um target; flash opcional) e corrige o que falhar. · size: S | not started |
+| [[1.2.2-phase-verification]] | Roda o script de ponta a ponta (build de ao menos um target; flash opcional) e corrige o que falhar. · size: S | 001_initial_task |
 
 ## Phase 1.3 — Notas e decisões
 
