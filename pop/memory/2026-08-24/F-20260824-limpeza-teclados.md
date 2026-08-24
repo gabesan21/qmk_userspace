@@ -3,7 +3,7 @@ task: F-20260824-limpeza-teclados
 project: qmk-userspace
 started: 2026-08-24
 finished: 2026-08-24
-commit: f7b2b4f
+commit: 16181ac
 pr:
 authorization: F-20260824-limpeza-teclados: direct-fix triage (rule 13) · comando explícito do humano soberano sobre o gate de importação (rule 20)
 ---
