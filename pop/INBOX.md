@@ -73,6 +73,8 @@ SORT claimed_at ASC
 
 Reports from the `weekly-review` skill are linked here, most recent first.
 
+- [[REVIEW-2026-08-24]] — *2026-08-24: root harness review; CLAUDE.md symlink fixed, stale notes marked, 3 proposals open*.
+
 ---
 
 Agents: nothing to maintain here beyond the **Reviews** section — the lists above derive from the frontmatter (`stage`, `critical`, `yolo`, `blocked`, `awaiting_merge` on cards; `status` on open questions) and from the release checkbox on 001 cards. To locate gates without Obsidian, run `python3 pop/scripts/pop_status.py` (grep on `stage:`/`awaiting_merge:` works as a fallback).

@@ -15,13 +15,11 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 ## Phase 1.1 — Mapa do projeto
 
-- **Status:** pending
-- **Description:** inventário navegável dos 5 targets Dilemma e seus keymaps `vendor`, consolidado no PROJECT.
+- **Status:** completed (2026-08-24)
+- **Description:** inventário do único teclado do dono — Dilemma V3 (`3x5_3_procyon`) — e seu keymap `vendor`, consolidado no PROJECT. *(Reduzida dos 5 targets em 2026-08-24: o dono só tem este teclado.)*
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| `1.1.1-inventario-keymaps` | Tabela dos 5 targets (variante, revisão de hardware) + resumo de cada keymap `vendor` no PROJECT. · size: S | not started |
-| `1.1.2-phase-verification` | Roda `pop_validate` e confere o mapa contra o repo. · size: S | not started |
 
 ## Phase 1.2 — Build e flash
 

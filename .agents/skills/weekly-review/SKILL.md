@@ -21,6 +21,8 @@ The file's class decides, never the size of the finding ("Current scope" › thr
 
 **The target is always the current scope** ("Current scope" section of [[WORKFLOW|WORKFLOW]]): the root holding the `AGENTS.md` you are reading. "Overview" never means leaving it. If an `origin-scope.md` sits next to this file, the scope hosts others and gains the extra fronts described there; if it does not exist, those fronts **do not apply** — do not look for them and do not invent them.
 
+**The normal flow reviews the base harness, never the projects.** When the current scope hosts others, the review covers the root scope alone; the hosting fronts look at projects from the outside (freshness, indexes, drafts) without sweeping any project's internals. A project is only reviewed when the human **explicitly orders it** — and then the review runs **from inside that project** (its own `AGENTS.md` as the current scope), never as a side front of the root review.
+
 **Delegate in parallel, mandatorily.** The main agent runs step 1's scripts, launches the waves of steps 2 and 3 and consolidates — it never sweeps or fixes by hand. Collection and correction are **waves of parallel subagents**, and no worker spawns subagents.
 
 ## Procedure

@@ -18,9 +18,17 @@ Mapa do recon (2026-08-23):
 - **5 build targets** em `qmk.json`, todos Dilemma com keymap `vendor`: `3x5_2`, `3x5_3`, `3x5_3_procyon`, `4x6_4`, `4x6_4_procyon`. Os demais modelos Bastard (charybdis, scylla, skeletyl, tbkmini) foram removidos do fork em 2026-08-24 ([[F-20260824-limpeza-teclados]]).
 - **Keymaps em C** sob `keyboards/bastardkb/dilemma/<variante>/keymaps/vendor/` (`keymap.c` + `config.h`), com combos e tap dance.
 - **`modules/bastardkb`** é submódulo git de [Bastardkb/qmk_modules](https://github.com/Bastardkb/qmk_modules) (o módulo de pointing); o workflow `update-submodule.yml` atualiza a referência automaticamente via `repository_dispatch`.
-- **Build:** local via `qmk compile` (requer `qmk config user.qmk_home` apontando para o firmware); CI em `.github/workflows/build_binaries.yaml` usa o workflow reutilizável do QMK contra `bastardkb/bastardkb-qmk@main` e publica os binários.
+- **Build:** local via `qmk compile` (requer `qmk config user.qmk_home` apontando para o firmware); a CI herdada do upstream foi **removida em 2026-08-24** ([[F-20260824-desativa-ci]]) — nenhum compile remoto.
 - **Suporte a devcontainer** (`.devcontainer/`) para build sem toolchain local.
 - Frágil/a observar: o repo depende de moving targets (submódulo e firmware upstream em `main`); sem testes locais — a validação é o build.
+
+### Inventário — Dilemma V3 (`bastardkb/dilemma/3x5_3_procyon`)
+
+Único teclado do dono; target principal do userspace (primeiro entry de `qmk.json`).
+
+- **Hardware:** 36 teclas split (3x5 por mão + 3 polegares por mão, layout `LAYOUT_split_3x5_3`), pointing device **Procyon** (trackpad; `AUTO_MOUSE_DEFAULT_LAYER 4` no `config.h` do keymap) e **2 encoders** (um por mão, com mapa por camada — `ENCODER_MAP_ENABLE = yes` no `rules.mk`). Extras confirmados: resolução de encoder 4 e 72 LEDs RGB no `config.h` do keymap; VIA habilitado no `rules.mk` do keymap (`VIA_ENABLE = yes`).
+- **Keymap `vendor`:** 7 camadas — Base (QWERTY), Function, Navigation, Media, Pointer, Numeral, Symbols (enum `dilemma_keymap_layers` no `keymap.c`, camadas 0–6; `DYNAMIC_KEYMAP_LAYER_COUNT 8`). Inspirado no [Miryoku](https://github.com/manna-harbour/miryoku): home-row mods (`LGUI_T`/`LALT_T`/`LCTL_T`/`LSFT_T`) e ativação de camadas por tap-hold nos polegares e em `Z`/`/` (Pointer).
+- **Detalhe camada-a-camada:** [[visual-layouts/layers_dillema_3x5_3_procyon|mapa visual das camadas]] — consultar sempre que for planejar ou alterar teclas/camadas do Dilemma (fonte primária do resumo acima).
 
 ## Folder structure
 
