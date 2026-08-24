@@ -28,7 +28,7 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| `1.2.1-script-build-flash` | `scripts/build_flash.sh`: checks (qmk, submódulo, `user.qmk_home`), compile do target (padrão `3x5_3_procyon:vendor`) e `--flash` via UF2. · size: M | not started |
+| [[1.2.1-script-build-flash]] | `scripts/build_flash.sh`: checks (qmk, submódulo, `user.qmk_home`), compile do target (padrão `3x5_3_procyon:vendor`) e `--flash` via UF2. · size: M | 001_initial_task |
 | `1.2.2-phase-verification` | Roda o script de ponta a ponta (build de ao menos um target; flash opcional) e corrige o que falhar. · size: S | not started |
 
 ## Phase 1.3 — Notas e decisões
