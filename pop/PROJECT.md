@@ -31,8 +31,8 @@ Anatomia padrão (ver AGENTS.md da raiz do vault). O conteúdo (firmware userspa
 - **Type and repositories:** `uni-repo`, declarado no [[AGENTS|AGENTS do projeto]] — PR branch `main`.
 - **Worktree per task:** yes (padrão) — worktrees em `pop/worktrees/`, gitignored.
 - **Tools and restrictions:** builds locais exigem QMK CLI configurado (`qmk config user.qmk_home`); o submódulo `modules/bastardkb` precisa estar inicializado (`git submodule update --init`). Nunca commitar artefatos de build (`*.hex`, `*.bin`, `*.uf2` — já gitignored).
-- **Tasks critical by default?** no — crítica é a tarefa que muda o comportamento de uma tecla de boot/reset ou o pipeline de build/CI.
-- **Skills:** `pop/skills/` vazio por ora — nasce na Epoch 1 (skill de build/flash).
+- **Tasks critical by default?** no — crítica é a tarefa que muda o comportamento de uma tecla de boot/reset ou o script de build/flash.
+- **Skills:** `pop/skills/` vazio por ora. **Build/flash não é skill:** é o script `scripts/build_flash.sh` na raiz do repo (nasce na task 1.2.1), rodado pelo próprio dono — `pop/scripts/` é exclusivo do harness e não recebe scripts do projeto.
 
 ## Decisions
 
