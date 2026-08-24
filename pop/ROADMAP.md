@@ -8,7 +8,7 @@ Profile: [[pop/PROJECT|QMK Userspace]]
 
 | # | Epoch | Description (≤1 line) | Status |
 |---|-------|-----------------------|--------|
-| 1 | [[pop/roadmap/1-organizacao\|Organização]] | Constrói o harness de conhecimento fiel ao repo importado: mapa, skills operacionais e notas. | pending |
+| 1 | [[pop/roadmap/1-organizacao\|Organização]] | Constrói o harness de conhecimento fiel ao repo importado: mapa, skills operacionais e notas. | in progress |
 
 **Epoch/phase status:** pending | in progress | completed
 

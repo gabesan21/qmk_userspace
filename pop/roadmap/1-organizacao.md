@@ -1,7 +1,7 @@
 # Epoch 1 — Organização
 
 - **Project:** [[pop/PROJECT|QMK Userspace]] · **Roadmap:** [[pop/ROADMAP|Roadmap]]
-- **Status:** pending
+- **Status:** in progress
 - **Description:** constrói o harness de conhecimento fiel ao repo importado — mapa do projeto, skills operacionais e notas — sem tocar no conteúdo (gate de importação no [[AGENTS|AGENTS]]).
 
 > One phase per section; under each phase, only still-open tasks — **always one-line descriptions**. On closing the `005_closing` stage, remove a task row only after its canonical memory is valid; preserve the epoch, phase, and other open tasks.
@@ -23,12 +23,11 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 ## Phase 1.2 — Build e flash
 
-- **Status:** pending
+- **Status:** in progress
 - **Description:** script executável de build/flash na raiz do repo (`scripts/`) — rodado pelo próprio dono, sem agente.
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| [[1.2.1-script-build-flash]] | `scripts/build_flash.sh`: checks (qmk, submódulo, `user.qmk_home`), compile do target (padrão `3x5_3_procyon:vendor`) e `--flash` via UF2. · size: M | 001_initial_task |
 | `1.2.2-phase-verification` | Roda o script de ponta a ponta (build de ao menos um target; flash opcional) e corrige o que falhar. · size: S | not started |
 
 ## Phase 1.3 — Notas e decisões

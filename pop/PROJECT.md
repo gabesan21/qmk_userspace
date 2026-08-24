@@ -1,6 +1,6 @@
 # QMK Userspace (Bastard Keyboards)
 
-- **Status:** planning
+- **Status:** in progress
 - **Priority:** medium
 - **Created on:** 2026-08-23
 - **Roadmap:** [[pop/ROADMAP|Roadmap]]
