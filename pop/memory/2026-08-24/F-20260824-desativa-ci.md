@@ -3,7 +3,7 @@ task: F-20260824-desativa-ci
 project: qmk-userspace
 started: 2026-08-24
 finished: 2026-08-24
-commit: <hash do commit final, anotado após o commit>
+commit: 8fa73f1
 pr:
 authorization: F-20260824-desativa-ci: direct-fix triage (rule 13) · comando explícito do humano soberano sobre o gate de importação (rule 20)
 ---
