@@ -15,8 +15,8 @@ Fork de [Bastardkb/qmk_userspace](https://github.com/Bastardkb/qmk_userspace) cr
 
 Mapa do recon (2026-08-23):
 
-- **14 build targets** em `qmk.json`, todos keymap `vendor`: Charybdis (3x5, 3x6, 4x6 + variantes `_left`, revisão `splinktegrated_rev1`), Dilemma (3x5_2, 3x5_3, 4x6_4 + variantes `_procyon`), Scylla, Skeletyl e TBK Mini.
-- **Keymaps em C** sob `keyboards/bastardkb/<modelo>/<variante>/keymaps/vendor/` (`keymap.c` + `config.h`), com combos e tap dance.
+- **5 build targets** em `qmk.json`, todos Dilemma com keymap `vendor`: `3x5_2`, `3x5_3`, `3x5_3_procyon`, `4x6_4`, `4x6_4_procyon`. Os demais modelos Bastard (charybdis, scylla, skeletyl, tbkmini) foram removidos do fork em 2026-08-24 ([[F-20260824-limpeza-teclados]]).
+- **Keymaps em C** sob `keyboards/bastardkb/dilemma/<variante>/keymaps/vendor/` (`keymap.c` + `config.h`), com combos e tap dance.
 - **`modules/bastardkb`** é submódulo git de [Bastardkb/qmk_modules](https://github.com/Bastardkb/qmk_modules) (o módulo de pointing); o workflow `update-submodule.yml` atualiza a referência automaticamente via `repository_dispatch`.
 - **Build:** local via `qmk compile` (requer `qmk config user.qmk_home` apontando para o firmware); CI em `.github/workflows/build_binaries.yaml` usa o workflow reutilizável do QMK contra `bastardkb/bastardkb-qmk@main` e publica os binários.
 - **Suporte a devcontainer** (`.devcontainer/`) para build sem toolchain local.
@@ -37,4 +37,5 @@ Anatomia padrão (ver AGENTS.md da raiz do vault). O conteúdo (firmware userspa
 ## Decisions
 
 - **2026-08-23:** importado como `uni-repo` com PR branch `main`; idioma do projeto pt-BR. Fork ainda espelha o upstream — as customizações pessoais de keymap serão planejadas pelo `plan-roadmap` após a Epoch 1.
-- **2026-08-24:** o teclado do dono é o **Dilemma V3 (36 keys, trackpad Procyon)** → target principal `bastardkb/dilemma/3x5_3_procyon`, keymap `vendor`. Toolchain local ausente (`qmk`, `clang-format`, submódulo) — build hoje só via CI ou devcontainer; decisão sobre instalar toolchain local fica para a Epoch 1 (fase 1.2).
+- **2026-08-24:** o teclado do dono é o **Dilemma V3 (36 keys, trackpad Procyon)** → target principal `bastardkb/dilemma/3x5_3_procyon`, keymap `vendor`. Toolchain local instalada via pacman (`qmk`, `clang`); build local ainda não validado (fase 1.2).
+- **2026-08-24 (desvio do gate de importação):** por comando explícito do humano (rule 20), removidos os modelos não-Dilemma do fork — charybdis, scylla, skeletyl, tbkmini — restando os 5 targets Dilemma. Direct fix [[F-20260824-limpeza-teclados]]; o gate segue ativo para o restante.
