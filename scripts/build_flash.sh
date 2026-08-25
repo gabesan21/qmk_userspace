@@ -210,19 +210,30 @@ else
 fi
 
 qmk_home() {
-    qmk config user.qmk_home 2>/dev/null | sed -n 's/^user\.qmk_home=//p'
+    # Saída real do qmk 1.2: `user.qmk_home=<valor> (origem)` — captura só o valor
+    qmk config user.qmk_home 2>/dev/null | sed -n 's/^user\.qmk_home=\([^ ]*\).*/\1/p'
+}
+
+qmk_home_ok() {
+    [[ -n "$1" && "$1" != "None" && -d "$1" ]]
 }
 
 QMK_HOME="$(qmk_home || true)"
-if [[ -n "$QMK_HOME" && "$QMK_HOME" != "None" && -d "$QMK_HOME" ]]; then
+if qmk_home_ok "$QMK_HOME"; then
     item "$S_OK" "Firmware" "user.qmk_home: $QMK_HOME"
 else
     item "$S_ERRO" "Firmware" "user.qmk_home não configurado (ou o diretório não existe)"
-    autofix "qmk setup -b main $FIRMWARE_REPO"
-    if qmk setup -b main "$FIRMWARE_REPO"; then
-        QMK_HOME="$(qmk_home || true)"
+    if [[ -d "$HOME/qmk_firmware" ]]; then
+        # `qmk setup` com clone existente (opção "keep") usa o diretório mas NÃO
+        # grava user.qmk_home — apontamos a config direto, sem re-setup
+        autofix "qmk config user.qmk_home=$HOME/qmk_firmware   (firmware já existe no local padrão)"
+        qmk config "user.qmk_home=$HOME/qmk_firmware" || true
+    else
+        autofix "qmk setup -b main $FIRMWARE_REPO"
+        qmk setup -b main "$FIRMWARE_REPO" || true
     fi
-    if [[ -n "$QMK_HOME" && "$QMK_HOME" != "None" && -d "$QMK_HOME" ]]; then
+    QMK_HOME="$(qmk_home || true)"
+    if qmk_home_ok "$QMK_HOME"; then
         item "$S_OK" "Firmware" "user.qmk_home: $QMK_HOME (corrigido agora)"
     else
         erro "A correção automática do user.qmk_home não resolveu."

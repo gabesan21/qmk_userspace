@@ -16,7 +16,7 @@ superseded_by:
 
 ## Contract
 
-O userspace tem um único caminho documentado de build/flash local: o script `scripts/build_flash.sh` na raiz do repo, executado pelo dono. O script **detecta e executa as correções documentadas** — ao falhar um check de preflight, ele mesmo roda `git submodule update --init modules/bastardkb` ou `qmk setup -b main bastardkb/bastardkb-qmk`, revalida e segue; só aborta se a correção não resolver. A instalação do QMK CLI segue como decisão do dono (detecta e instrui).
+O userspace tem um único caminho documentado de build/flash local: o script `scripts/build_flash.sh` na raiz do repo, executado pelo dono. O script **detecta e executa as correções documentadas** — ao falhar um check de preflight, ele mesmo roda `git submodule update --init modules/bastardkb`, `qmk config user.qmk_home=<path>` (firmware já clonado no local padrão) ou `qmk setup -b main bastardkb/bastardkb-qmk`, revalida e segue; só aborta se a correção não resolver. A instalação do QMK CLI segue como decisão do dono (detecta e instrui).
 
 ## Expected behavior
 
@@ -29,7 +29,7 @@ O userspace tem um único caminho documentado de build/flash local: o script `sc
 
 - Flash nunca é implícito: somente atrás da flag explícita `--flash`.
 - Toda falha de preflight dispara o auto-fix documentado; a correção é revalidada e, se não resolver, o script termina imediatamente com o comando corretivo exato (fail-fast, saída `1`).
-- O auto-fix é limitado às duas correções documentadas (init do submódulo e `qmk setup -b main` do fork); o script não instala programas — o QMK CLI ausente é apenas detectado e instruído.
+- O auto-fix é limitado às correções documentadas (init do submódulo; `qmk config user.qmk_home` para firmware no local padrão; `qmk setup -b main` do fork); o script não instala programas — o QMK CLI ausente é apenas detectado e instruído.
 - Mensagens ao usuário em pt-BR; cores desligadas fora de terminal ou com `NO_COLOR`.
 - Nenhum artefato de build (`*.uf2`, `*.hex`, `*.bin`) é gerado dentro do repo (o compile escreve em `user.qmk_home`).
 
@@ -44,7 +44,7 @@ O userspace tem um único caminho documentado de build/flash local: o script `sc
 
 - **qmk ausente:** erro + instrução de instalação (pacman ou pip); saída `1`. Sem auto-fix.
 - **Submódulo não inicializado/vazio:** o script executa `git submodule update --init modules/bastardkb` e revalida; se não resolver, erro + comando corretivo; saída `1`.
-- **`user.qmk_home` ausente ou inválido:** o script executa `qmk setup -b main bastardkb/bastardkb-qmk` e revalida; se não resolver, erro + comando corretivo; saída `1`.
+- **`user.qmk_home` ausente ou inválido:** se o firmware já existe no local padrão (`~/qmk_firmware`), o script grava a config com `qmk config user.qmk_home=<path>` — `qmk setup` com clone existente (opção "keep") não grava a config; senão executa `qmk setup -b main bastardkb/bastardkb-qmk`. Revalida; se não resolver, erro + comando corretivo; saída `1`. A leitura tolera o formato real do qmk 1.2 (`user.qmk_home=<valor> (origem)`).
 - **Compile falha ou `.uf2` não encontrado:** erro apontando a saída do compile/`qmk doctor`; saída `3`.
 - **Volume UF2 não aparece em 60 s ou cópia falha:** erro + instrução de confirmar o modo bootloader; saída `4`. Sem automação de montagem além da detecção simples do volume.
 
