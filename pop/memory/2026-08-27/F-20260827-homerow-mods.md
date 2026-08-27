@@ -3,7 +3,7 @@ task: F-20260827-homerow-mods
 project: qmk-userspace
 started: 2026-08-27
 finished: 2026-08-27
-commit:
+commit: 3ef644c
 pr:
 authorization: F-20260827-homerow-mods: direct-fix triage · comando explícito do humano soberano sobre o gate de importação
 ---

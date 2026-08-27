@@ -36,5 +36,4 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| `1.3.1-notas-decisoes` | Notas em `pop/notes/decisions|references`: origem do fork, auto-update do submódulo, política de sync upstream. · size: S | not started |
 | `1.3.2-phase-verification` | Roda `pop_validate` e confere links e frontmatter das notas. · size: S | not started |
