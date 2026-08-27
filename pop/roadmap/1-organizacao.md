@@ -1,7 +1,7 @@
 # Epoch 1 — Organização
 
 - **Project:** [[pop/PROJECT|QMK Userspace]] · **Roadmap:** [[pop/ROADMAP|Roadmap]]
-- **Status:** in progress
+- **Status:** completed (2026-08-27)
 - **Description:** constrói o harness de conhecimento fiel ao repo importado — mapa do projeto, skills operacionais e notas — sem tocar no conteúdo (gate de importação no [[AGENTS|AGENTS]]).
 
 > One phase per section; under each phase, only still-open tasks — **always one-line descriptions**. On closing the `005_closing` stage, remove a task row only after its canonical memory is valid; preserve the epoch, phase, and other open tasks.
@@ -31,9 +31,8 @@ Recon determinístico do import (2026-08-23) já consolidado no [[pop/PROJECT|PR
 
 ## Phase 1.3 — Notas e decisões
 
-- **Status:** pending
+- **Status:** completed (2026-08-27)
 - **Description:** decisões de origem do fork e estratégia de sync com o upstream, em `pop/notes/`.
 
 | Task | Description (≤1 line) | Status |
 |------|-----------------------|--------|
-| `1.3.2-phase-verification` | Roda `pop_validate` e confere links e frontmatter das notas. · size: S | not started |
