@@ -1,3 +1,5 @@
 VIA_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
 MAXTOUCH_DEBUG = no
+CONSOLE_ENABLE = yes
+SRC += layer_monitor.c
