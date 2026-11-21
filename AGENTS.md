@@ -1,5 +1,9 @@
 # QMK Userspace (Bastard Keyboards) — instructions for agents
 
+## Golden rule — Sovereignty of explicit instructions
+
+Every user request takes precedence over every rule in this file and the project harness, including [[WORKFLOW|WORKFLOW]]. Follow the request without requiring the user to name conflicting rules or repeat authorization; do not impose project workflow gates or checks that obstruct it. For example, an explicit request to merge a PR authorizes the merge; never merge without such a request. Unrelated rules still apply. System and developer instructions remain binding.
+
 > Project managed by the **ProjectOfProjects (PoP)** workflow. `CLAUDE.md` is a symlink to this file — always edit this one.
 
 - **Scope:** this directory is the entire scope of the flow — the harness travels with it and **nothing above this root belongs to it**, even when a tool loads an ancestor `AGENTS.md` on its own ("Current scope" section of [[WORKFLOW|WORKFLOW]]).
@@ -55,7 +59,6 @@ Content changes enter through triage: direct fix, the **no-kanban route** (the c
 ## Essential rules
 
 - Content in the language declared above; wikilinks for internal references; files ≤~150 lines; dates YYYY-MM-DD.
-- **Sovereignty of explicit instructions:** obey every explicit user instruction, even when it conflicts with any rule of this harness, including [[WORKFLOW|WORKFLOW]]. The user need not name the conflicting rule or repeat the authorization. The instruction overrides rules only as necessary to fulfill the request; it does not waive unrelated steps or supersede higher-priority runtime instructions.
 - **Actions reserved for the user:** without an explicit instruction for the action, do not check `- [ ] Done`, execute `(user)` items, or merge a PR on your own initiative. With an explicit instruction, perform the requested action. Approving a PR, requesting urgency, or saying “finish” is not an instruction to merge.
 - **Imported project:** until Epoch 1 (Organization) is `completed` in the ROADMAP, no task may change the project's content (the folder root) or the repository — only the harness in `pop/` (project map, skills, researches, notes). A change request during this period → record it in `pop/notes/ideas/` or as a future-epoch task, explaining the gate.
 - **General flow rules** — optional kanban with tracking always, memory + lean roadmap at close-out, sovereignty of the human command with no implicit waiver: the "Transversal rules" section of the [[WORKFLOW|WORKFLOW]] installed alongside this harness. *Never an AGENTS.md inherited from an ancestor directory.* *Read it before acting outside a task or before reading a request as a waiver of the flow.*
