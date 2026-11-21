@@ -33,9 +33,9 @@ enum dilemma_keymap_layers {
 
 #define ESC_MED LT(LAYER_MEDIA, KC_ESC)
 #define SPC_NAV LT(LAYER_NAVIGATION, KC_SPC)
-#define TAB_FUN LT(LAYER_FUNCTION, KC_TAB)
+#define TAB_NUM LT(LAYER_NUMERAL, KC_TAB)
 #define ENT_SYM LT(LAYER_SYMBOLS, KC_ENT)
-#define BSP_NUM LT(LAYER_NUMERAL, KC_BSPC)
+#define BSP_FUN LT(LAYER_FUNCTION, KC_BSPC)
 #define PT_Z LT(LAYER_POINTER, KC_Z)
 
 // LT(0, tecla) preserva o toque normal; o hook abaixo substitui apenas a ação ao segurar.
@@ -120,7 +120,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       Q_GRV,   W_TILD,  E_ACUTE,    KC_R,    KC_T,    KC_Y, U_DIAERESIS, I_CIRC,    KC_O,    KC_P,
        LALT_T(KC_A), LCTL_T(KC_S), LSFT_T(KC_D), LGUI_T(KC_F), KC_G, KC_H, LGUI_T(KC_J), LSFT_T(KC_K), LCTL_T(KC_L), LALT_T(KC_QUOT),
        PT_Z,    RALT_T(KC_X),    KC_C,    KC_V,    KC_B,    KC_N,    KC_M, KC_COMM, RALT_T(KC_DOT), SLSH_QUES,
-                      ESC_MED, TAB_FUN, SPC_NAV, ENT_SYM, BSP_NUM, KC_MUTE
+                      ESC_MED, TAB_NUM, SPC_NAV, ENT_SYM, BSP_FUN, KC_MUTE
   ),
 
 /*
@@ -138,14 +138,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *
  * Secondary right-hand layer has function keys mirroring the numerals on the
  * primary layer with extras on the pinkie column, plus system keys on the inner
- * column. App is on the tertiary thumb key and other thumb keys are duplicated
- * from the base layer to enable auto-repeat.
+ * column.
  */
   [LAYER_FUNCTION] = LAYOUT_split_3x5_3(
     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_PSCR,   KC_F7,   KC_F8,   KC_F9,  KC_F12,
     KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX, KC_SCRL,   KC_F4,   KC_F5,   KC_F6,  KC_F11,
     XXXXXXX, KC_RALT, XXXXXXX, XXXXXXX, XXXXXXX, KC_PAUS,   KC_F1,   KC_F2,   KC_F3,  KC_F10,
-                      XXXXXXX, _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
+                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______, XXXXXXX
   ),
 
 /**
@@ -187,7 +186,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /**
  * \brief Numeral layout.
  *
- * Primary left-hand layer (right home thumb) is numerals and symbols. Numerals
+ * Primary left-hand layer (Tab) is numerals and symbols. Numerals
  * are in the standard numpad locations with symbols in the remaining positions.
  * `KC_DOT` is duplicated from the base layer.
  */
@@ -195,7 +194,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_LBRC,    KC_7,    KC_8,    KC_9, KC_RBRC, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
     KC_SCLN,    KC_4,    KC_5,    KC_6,  KC_EQL, XXXXXXX, KC_LSFT, KC_LCTL, KC_LALT, KC_LGUI,
      KC_DOT,    KC_1,    KC_2,    KC_3, KC_BSLS, XXXXXXX, XXXXXXX, XXXXXXX, KC_RALT, XXXXXXX,
-                       KC_DOT, KC_MINS,    KC_0, XXXXXXX, _______, XXXXXXX
+                       KC_DOT, _______,    KC_0, XXXXXXX, KC_MINS, XXXXXXX
   ),
 
 // Fileira superior na ordem US (sem ^); pares e pontuação na mão direita.
@@ -203,7 +202,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_EXLM,   KC_AT, KC_HASH, KC_DLR, KC_PERC, KC_AMPR,   KC_ASTR,  KC_LPRN,  KC_RPRN, MINS_UNDS,
     KC_LALT, KC_LCTL, KC_LSFT, KC_LGUI, XXXXXXX, XXXXXXX, SCLN_COLN, LBRC_LCBR, RBRC_RCBR, EQL_PLUS,
     XXXXXXX, KC_RALT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   XXXXXXX,   KC_LABK,   KC_RABK, BSLS_PIPE,
-                      KC_RPRN,  KC_GRV, KC_UNDS, _______, XXXXXXX, XXXXXXX
+                      XXXXXXX, XXXXXXX,  KC_SPC, _______,  KC_DEL, XXXXXXX
   ),
 };
 // clang-format on
