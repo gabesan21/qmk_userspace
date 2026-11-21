@@ -37,7 +37,74 @@ enum dilemma_keymap_layers {
 #define ENT_SYM LT(LAYER_SYMBOLS, KC_ENT)
 #define BSP_NUM LT(LAYER_NUMERAL, KC_BSPC)
 #define PT_Z LT(LAYER_POINTER, KC_Z)
-#define PT_SLSH LT(LAYER_POINTER, KC_SLSH)
+
+// LT(0, tecla) preserva o toque normal; o hook abaixo substitui apenas a ação ao segurar.
+#define Q_GRV LT(0, KC_Q)
+#define W_TILD LT(0, KC_W)
+#define E_ACUTE LT(0, KC_E)
+#define U_DIAERESIS LT(0, KC_U)
+#define I_CIRC LT(0, KC_I)
+#define SLSH_QUES LT(0, KC_SLSH)
+#define MINS_UNDS LT(0, KC_MINS)
+#define EQL_PLUS LT(0, KC_EQL)
+#define SCLN_COLN LT(0, KC_SCLN)
+#define LBRC_LCBR LT(0, KC_LBRC)
+#define RBRC_RCBR LT(0, KC_RBRC)
+#define BSLS_PIPE LT(0, KC_BSLS)
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->tap.count) {
+        return true;
+    }
+
+    uint16_t held_keycode;
+    // Em us-intl, grave, til, apóstrofo, aspas e circunflexo são teclas mortas.
+    switch (keycode) {
+        case Q_GRV:
+            held_keycode = KC_GRV;
+            break;
+        case W_TILD:
+            held_keycode = KC_TILD;
+            break;
+        case E_ACUTE:
+            held_keycode = KC_QUOT;
+            break;
+        case U_DIAERESIS:
+            held_keycode = KC_DQUO;
+            break;
+        case I_CIRC:
+            held_keycode = KC_CIRC;
+            break;
+        case SLSH_QUES:
+            held_keycode = KC_QUES;
+            break;
+        case MINS_UNDS:
+            held_keycode = KC_UNDS;
+            break;
+        case EQL_PLUS:
+            held_keycode = KC_PLUS;
+            break;
+        case SCLN_COLN:
+            held_keycode = KC_COLN;
+            break;
+        case LBRC_LCBR:
+            held_keycode = KC_LCBR;
+            break;
+        case RBRC_RCBR:
+            held_keycode = KC_RCBR;
+            break;
+        case BSLS_PIPE:
+            held_keycode = KC_PIPE;
+            break;
+        default:
+            return true;
+    }
+
+    if (record->event.pressed) {
+        tap_code16(held_keycode);
+    }
+    return false;
+}
 
 #ifndef POINTING_DEVICE_ENABLE
 #    define DRGSCRL KC_NO
@@ -50,9 +117,9 @@ enum dilemma_keymap_layers {
 /** \brief QWERTY layout (3 rows, 10 columns). */
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_BASE] = LAYOUT_split_3x5_3(
-       KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,
+      Q_GRV,   W_TILD,  E_ACUTE,    KC_R,    KC_T,    KC_Y, U_DIAERESIS, I_CIRC,    KC_O,    KC_P,
        LALT_T(KC_A), LCTL_T(KC_S), LSFT_T(KC_D), LGUI_T(KC_F), KC_G, KC_H, LGUI_T(KC_J), LSFT_T(KC_K), LCTL_T(KC_L), LALT_T(KC_QUOT),
-       PT_Z,    RALT_T(KC_X),    KC_C,    KC_V,    KC_B,    KC_N,    KC_M, KC_COMM,  RALT_T(KC_DOT), PT_SLSH,
+       PT_Z,    RALT_T(KC_X),    KC_C,    KC_V,    KC_B,    KC_N,    KC_M, KC_COMM, RALT_T(KC_DOT), SLSH_QUES,
                       ESC_MED, TAB_FUN, SPC_NAV, ENT_SYM, BSP_NUM, KC_MUTE
   ),
 
@@ -131,17 +198,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                        KC_DOT, KC_MINS,    KC_0, XXXXXXX, _______, XXXXXXX
   ),
 
-/**
- * \brief Symbols layer.
- *
- * Secondary left-hand layer has shifted symbols in the same locations to reduce
- * chording when using mods with shifted symbols. `KC_LPRN` is duplicated next to
- * `KC_RPRN`.
- */
+// Fileira superior na ordem US (sem ^); pares e pontuação na mão direita.
   [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
-    KC_LCBR, KC_AMPR, KC_ASTR, KC_LPRN, KC_RCBR, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-    KC_COLN,  KC_DLR, KC_PERC, KC_CIRC, KC_PLUS, XXXXXXX, KC_LSFT, KC_LCTL, KC_LALT, KC_LGUI,
-    KC_TILD, KC_EXLM,   KC_AT, KC_HASH, KC_PIPE, XXXXXXX, XXXXXXX, XXXXXXX, KC_RALT, XXXXXXX,
+    KC_EXLM,   KC_AT, KC_HASH, KC_DLR, KC_PERC, KC_AMPR,   KC_ASTR,  KC_LPRN,  KC_RPRN, MINS_UNDS,
+    KC_LALT, KC_LCTL, KC_LSFT, KC_LGUI, XXXXXXX, XXXXXXX, SCLN_COLN, LBRC_LCBR, RBRC_RCBR, EQL_PLUS,
+    XXXXXXX, KC_RALT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   XXXXXXX,   KC_LABK,   KC_RABK, BSLS_PIPE,
                       KC_RPRN,  KC_GRV, KC_UNDS, _______, XXXXXXX, XXXXXXX
   ),
 };
