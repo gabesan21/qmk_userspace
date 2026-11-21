@@ -3,8 +3,8 @@ id: monitor-camadas
 project: QMK Userspace
 domain: monitor-camadas
 kind: contract
-status: draft
-implementation: planned
+status: active
+implementation: implemented
 origin: "M-1"
 created: 2026-11-21
 updated: 2026-11-21
