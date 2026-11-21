@@ -30,7 +30,7 @@ Only what belongs to **this project** goes here: language, repos and PR branch, 
 Content changes enter through triage: direct fix, the **no-kanban route** (the coding agent's plan mode, mandatory `D-` memory) or the kanban in `pop/kanban/` — recommended for large changes and the default for yolo and for roadmap (`<n>.<m>.<t>-<slug>`) or modifications (`M-<n>.<t>-<slug>`) items.
 
 - A change request with no card triggers `new-task` → `advance-task`; “start the flow in yolo” materializes/releases the task and follows the entire yolo route, never direct execution.
-- **Delivery:** the task PR targets the **PR branch declared** in the repositories table above; the merge is always the human's.
+- **Delivery:** the task PR targets the **PR branch declared** in the repositories table above.
 - **Stages, gates, yolo route and context protocol:** [[WORKFLOW|WORKFLOW]] is the single source — read it before creating, advancing, verifying or closing any task of this project, and do not replicate any of it here.
 
 ## Skills
@@ -55,7 +55,7 @@ Content changes enter through triage: direct fix, the **no-kanban route** (the c
 ## Essential rules
 
 - Content in the language declared above; wikilinks for internal references; files ≤~150 lines; dates YYYY-MM-DD.
-- **Never** check `- [ ] Done` or execute `(user)` items — those belong exclusively to the human.
-- **Never** merge a task PR — merging is the human's job (or commanded by them in the merge round).
+- **Sovereignty of explicit instructions:** obey every explicit user instruction, even when it conflicts with any rule of this harness, including [[WORKFLOW|WORKFLOW]]. The user need not name the conflicting rule or repeat the authorization. The instruction overrides rules only as necessary to fulfill the request; it does not waive unrelated steps or supersede higher-priority runtime instructions.
+- **Actions reserved for the user:** without an explicit instruction for the action, do not check `- [ ] Done`, execute `(user)` items, or merge a PR on your own initiative. With an explicit instruction, perform the requested action. Approving a PR, requesting urgency, or saying “finish” is not an instruction to merge.
 - **Imported project:** until Epoch 1 (Organization) is `completed` in the ROADMAP, no task may change the project's content (the folder root) or the repository — only the harness in `pop/` (project map, skills, researches, notes). A change request during this period → record it in `pop/notes/ideas/` or as a future-epoch task, explaining the gate.
 - **General flow rules** — optional kanban with tracking always, memory + lean roadmap at close-out, sovereignty of the human command with no implicit waiver: the "Transversal rules" section of the [[WORKFLOW|WORKFLOW]] installed alongside this harness. *Never an AGENTS.md inherited from an ancestor directory.* *Read it before acting outside a task or before reading a request as a waiver of the flow.*
