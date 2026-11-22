@@ -79,15 +79,14 @@ if ! go_compativel; then
     go_compativel || falha "$aviso"
 fi
 
-cache=${XDG_CACHE_HOME:-$HOME/.cache}/monitor-camadas
-mkdir -p -- "$cache"
+binario=./monitor-camadas
 printf 'Preparando dependências e compilando o monitor…\n' >&2
 go mod download
-go build -mod=readonly -o "$cache/monitor-camadas" .
+go build -mod=readonly -o "$binario" .
 
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT
 preparar_acesso
 rm -rf -- "$tmp"
 trap - EXIT
-exec "$cache/monitor-camadas" "$@"
+exec "$binario" "$@"

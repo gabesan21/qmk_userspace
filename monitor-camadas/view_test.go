@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -61,8 +62,8 @@ func TestMapAndLegendFitAfterResize(t *testing.T) {
 			m := newModel()
 			m.Update(layerEvent{Layer: id})
 			for _, size := range []tea.WindowSizeMsg{
-				{Width: 64, Height: 18}, {Width: 96, Height: 27},
-				{Width: 80, Height: 22}, {Width: 120, Height: 33}, {Width: 64, Height: 18},
+				{Width: 85, Height: 24}, {Width: 128, Height: 36},
+				{Width: 92, Height: 32}, {Width: 140, Height: 40}, {Width: 85, Height: 24},
 			} {
 				m.Update(size)
 				content := m.View().Content
@@ -70,8 +71,10 @@ func TestMapAndLegendFitAfterResize(t *testing.T) {
 				if w > size.Width || h > size.Height {
 					t.Fatalf("tela %dx%d excede %dx%d", w, h, size.Width, size.Height)
 				}
-				lines := strings.Split(content, "\n")
-				if len(lines) <= size.Height/2 || !strings.Contains(lines[0], fmt.Sprintf("Camada %d · %s", id, layerMaps[id].name)) {
+				plain := sgr.ReplaceAllString(content, "")
+				lines := strings.Split(plain, "\n")
+				if len(lines) <= size.Height/2 ||
+					!strings.Contains(strings.Join(lines[:size.Height/2], "\n"), fmt.Sprintf("Camada %d · %s", id, layerMaps[id].name)) {
 					t.Fatalf("cabeçalho ou área inferior ausente em %dx%d", size.Width, size.Height)
 				}
 				checkKeyboard(t, lines[:size.Height/2], &layerMaps[id])
@@ -86,6 +89,8 @@ func TestMapAndLegendFitAfterResize(t *testing.T) {
 	}
 }
 
+var sgr = regexp.MustCompile(`\x1b\[[0-9;:]*m`)
+
 func checkKeyboard(t *testing.T, lines []string, layer *layerMap) {
 	t.Helper()
 	row, pos := 0, 0
@@ -93,12 +98,12 @@ func checkKeyboard(t *testing.T, lines []string, layer *layerMap) {
 		if !strings.Contains(line, "│") {
 			continue
 		}
-		parts := strings.Split(strings.Trim(strings.TrimSpace(line), "│"), "│  │")
+		parts := strings.Split(strings.Trim(strings.TrimSpace(line), "│"), "│     │")
 		if len(parts) != 2 || row >= 4 {
 			t.Fatalf("fileira física inválida: %s", line)
 		}
 		for _, hand := range parts {
-			keys := strings.Split(hand, "│")
+			keys := strings.Fields(hand)
 			if row < 3 && len(keys) != 5 || row == 3 && len(keys) != 3 {
 				t.Fatalf("fileira %d: %d teclas na mão", row, len(keys))
 			}
@@ -118,11 +123,11 @@ func checkKeyboard(t *testing.T, lines []string, layer *layerMap) {
 
 func TestNoLayerUntilConfirmedAfterConnection(t *testing.T) {
 	m := newModel()
-	m.Update(tea.WindowSizeMsg{Width: 64, Height: 18})
+	m.Update(tea.WindowSizeMsg{Width: 85, Height: 24})
 	noMap := func(status string) {
 		t.Helper()
 		content := m.View().Content
-		if !strings.Contains(content, "Sem camada confirmada") || !strings.Contains(content, status) || strings.Contains(content, "│") {
+		if !strings.Contains(content, "Sem camada confirmada") || !strings.Contains(content, status) || strings.Contains(content, "01  ESQUERDA") {
 			t.Fatalf("esperado diagnóstico sem mapa; recebido %q", content)
 		}
 	}
@@ -145,14 +150,14 @@ func TestNoLayerUntilConfirmedAfterConnection(t *testing.T) {
 func TestBelowMinimumAndRecovery(t *testing.T) {
 	m := newModel()
 	m.Update(layerEvent{Layer: 6})
-	for _, size := range []tea.WindowSizeMsg{{Width: 63, Height: 18}, {Width: 64, Height: 17}} {
+	for _, size := range []tea.WindowSizeMsg{{Width: 84, Height: 24}, {Width: 85, Height: 23}} {
 		m.Update(size)
 		text := m.View().Content
-		if !strings.Contains(text, "64×18") || strings.Contains(text, "│") {
+		if !strings.Contains(text, "85×24") || strings.Contains(text, "│") {
 			t.Errorf("esperado aviso sem mapa cortado, recebido %q", text)
 		}
 	}
-	m.Update(tea.WindowSizeMsg{Width: 64, Height: 18})
+	m.Update(tea.WindowSizeMsg{Width: 85, Height: 24})
 	if !strings.Contains(m.View().Content, "Camada 6 · Símbolos") {
 		t.Fatal("resize perdeu a camada confirmada")
 	}

@@ -37,6 +37,7 @@ enum dilemma_keymap_layers {
 #define ENT_SYM LT(LAYER_SYMBOLS, KC_ENT)
 #define BSP_FUN LT(LAYER_FUNCTION, KC_BSPC)
 #define PT_Z LT(LAYER_POINTER, KC_Z)
+#define PT_SLSH LT(LAYER_POINTER, KC_SLSH)
 
 // LT(0, tecla) preserva o toque normal; o hook abaixo substitui apenas a ação ao segurar.
 #define Q_GRV LT(0, KC_Q)
@@ -44,7 +45,6 @@ enum dilemma_keymap_layers {
 #define E_ACUTE LT(0, KC_E)
 #define U_DIAERESIS LT(0, KC_U)
 #define I_CIRC LT(0, KC_I)
-#define SLSH_QUES LT(0, KC_SLSH)
 #define MINS_UNDS LT(0, KC_MINS)
 #define EQL_PLUS LT(0, KC_EQL)
 #define SCLN_COLN LT(0, KC_SCLN)
@@ -74,9 +74,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case I_CIRC:
             held_keycode = KC_CIRC;
-            break;
-        case SLSH_QUES:
-            held_keycode = KC_QUES;
             break;
         case MINS_UNDS:
             held_keycode = KC_UNDS;
@@ -119,7 +116,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_BASE] = LAYOUT_split_3x5_3(
       Q_GRV,   W_TILD,  E_ACUTE,    KC_R,    KC_T,    KC_Y, U_DIAERESIS, I_CIRC,    KC_O,    KC_P,
        LALT_T(KC_A), LCTL_T(KC_S), LSFT_T(KC_D), LGUI_T(KC_F), KC_G, KC_H, LGUI_T(KC_J), LSFT_T(KC_K), LCTL_T(KC_L), LALT_T(KC_QUOT),
-       PT_Z,    RALT_T(KC_X),    KC_C,    KC_V,    KC_B,    KC_N,    KC_M, KC_COMM, RALT_T(KC_DOT), SLSH_QUES,
+       PT_Z,    RALT_T(KC_X),    KC_C,    KC_V,    KC_B,    KC_N,    KC_M, KC_COMM, RALT_T(KC_DOT), PT_SLSH,
                       ESC_MED, TAB_NUM, SPC_NAV, ENT_SYM, BSP_FUN, KC_MUTE
   ),
 
@@ -195,7 +192,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_SYMBOLS] = LAYOUT_split_3x5_3(
     KC_EXLM,   KC_AT, KC_HASH, KC_DLR, KC_PERC, KC_AMPR,   KC_ASTR,  KC_LPRN,  KC_RPRN, MINS_UNDS,
     KC_LALT, KC_LCTL, KC_LSFT, KC_LGUI, XXXXXXX, XXXXXXX, SCLN_COLN, LBRC_LCBR, RBRC_RCBR, EQL_PLUS,
-    XXXXXXX, KC_RALT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   XXXXXXX,   KC_LABK,   KC_RABK, BSLS_PIPE,
+    XXXXXXX, KC_RALT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   KC_LABK,   KC_RABK, BSLS_PIPE, KC_QUES,
                       XXXXXXX, XXXXXXX,  KC_SPC, _______, XXXXXXX, XXXXXXX
   ),
 };

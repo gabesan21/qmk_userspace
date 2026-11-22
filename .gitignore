@@ -10,6 +10,9 @@
 *.bin
 *.uf2
 
+# Executável local do monitor de camadas
+/monitor-camadas/monitor-camadas
+
 # unirepo-harness: preserve the standalone anatomy in Git
 !pop/worktrees/
 pop/worktrees/*

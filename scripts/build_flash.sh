@@ -2,12 +2,9 @@
 #
 # build_flash.sh — build e flash do firmware do QMK userspace (Bastard Keyboards).
 #
-# Caminho único e documentado de build/flash do projeto (contrato durável:
-# pop/specs/build-flash-script.md). O preflight detecta problemas de ambiente
-# e executa ele mesmo as correções documentadas — init do submódulo e
-# `qmk setup -b main` do fork — revalidando em seguida (fail-fast se a
-# correção não resolver). A instalação do QMK CLI segue como instrução ao
-# dono, e o flash é sempre opt-in via --flash.
+# Motor de build/flash; ./flash.sh prepara dependências e guia o Dilemma V3.
+# O preflight inicializa o submódulo e prepara o fork QMK quando necessário.
+# A gravação via UF2 é opt-in: --flash ou --both.
 #
 # Uso: scripts/build_flash.sh [opções]   (ver --help)
 
@@ -26,6 +23,7 @@ readonly LARGURA_CAIXA=64
 KEYBOARD="$KEYBOARD_PADRAO"
 KEYMAP="$KEYMAP_PADRAO"
 FLASH=0
+AMBAS=0
 
 # ---------------------------------------------------------------------------
 # Saída visual: cores só em terminal e respeitando NO_COLOR
@@ -40,7 +38,6 @@ else
 fi
 readonly S_OK="${C_VERDE}✔${C_RESET}" S_ERRO="${C_VERMELHO}✘${C_RESET}"
 readonly S_INFO="${C_CIANO}➜${C_RESET}" S_FIX="${C_AMARELO}⚙${C_RESET}"
-readonly SPINNER_FRAMES=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
 
 # ---------------------------------------------------------------------------
 # Blocos visuais: caixas, réguas de seção, checklist e campos alinhados.
@@ -83,12 +80,18 @@ caixa_bootloader() {
     local cor="$C_AMARELO"
     printf '\n'
     _borda "╭" "╮" "$cor"
-    _linha "$cor" "Coloque o Dilemma em modo bootloader UF2:"
-    _linha "$cor" ""
-    _linha "$cor" "1. pressione RESET duas vezes em sequência rápida (double-tap);"
-    _linha "$cor" "2. ou segure BOOT enquanto conecta o cabo USB."
-    _linha "$cor" ""
-    _linha "$cor" "Um volume chamado RPI-RP2 deve aparecer montado no sistema."
+    _linha "$cor" "Conecte o USB à metade $1 do Dilemma V3."
+    _linha "$cor" "Mantenha o cabo TRRS conectado durante todo o processo."
+    if [[ "$1" == direita ]]; then
+        _linha "$cor" "Segure a tecla inferior externa direita (/ → PTR)."
+        _linha "$cor" "Sem soltar, pressione a tecla superior externa direita."
+    else
+        _linha "$cor" "Segure a tecla inferior externa esquerda (Z → PTR)."
+        _linha "$cor" "Sem soltar, pressione a tecla superior externa esquerda."
+    fi
+    _linha "$cor" "Esse atalho depende do firmware já gravado na metade."
+    _linha "$cor" "Deixe só esta metade em bootloader. Não retire o USB"
+    _linha "$cor" "enquanto o firmware estiver sendo gravado."
     _borda "╰" "╯" "$cor"
     printf '\n'
 }
@@ -137,6 +140,7 @@ EOF
   -k, --keyboard <alvo>   Teclado alvo (padrão: $KEYBOARD_PADRAO)
   -m, --keymap <nome>     Keymap       (padrão: $KEYMAP_PADRAO)
       --flash             Grava o firmware via UF2 após o compile (opt-in)
+      --both              Grava as metades direita e esquerda do Dilemma V3
   -h, --help              Mostra esta ajuda
 EOF
     secao "Códigos de saída"
@@ -165,6 +169,7 @@ while [[ $# -gt 0 ]]; do
             [[ $# -ge 2 ]] || { erro "A opção $1 exige um valor."; exit 2; }
             KEYMAP="$2"; shift 2 ;;
         --flash) FLASH=1; shift ;;
+        --both) FLASH=1; AMBAS=1; shift ;;
         -h|--help) uso; exit 0 ;;
         *) erro "Opção desconhecida: $1"; uso; exit 2 ;;
     esac
@@ -172,6 +177,11 @@ done
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
+
+if (( AMBAS )) && [[ "$KEYBOARD" != "$KEYBOARD_PADRAO" ]]; then
+    erro "--both é específico para o Dilemma V3 3x5+3 Procyon."
+    exit 2
+fi
 
 banner
 
@@ -210,12 +220,12 @@ else
 fi
 
 qmk_home() {
-    # Saída real do qmk 1.2: `user.qmk_home=<valor> (origem)` — captura só o valor
-    qmk config user.qmk_home 2>/dev/null | sed -n 's/^user\.qmk_home=\([^ ]*\).*/\1/p'
+    # QMK 1.2 inclui a origem entre parênteses após o valor.
+    qmk config user.qmk_home 2>/dev/null | sed -n '/^user\.qmk_home=/ {s///; s/ ([^()]*)$//; p;}'
 }
 
 qmk_home_ok() {
-    [[ -n "$1" && "$1" != "None" && -d "$1" ]]
+    [[ -n "$1" && "$1" != "None" && -f "$1/Makefile" && -d "$1/lib/python/qmk" ]]
 }
 
 QMK_HOME="$(qmk_home || true)"
@@ -223,15 +233,17 @@ if qmk_home_ok "$QMK_HOME"; then
     item "$S_OK" "Firmware" "user.qmk_home: $QMK_HOME"
 else
     item "$S_ERRO" "Firmware" "user.qmk_home não configurado (ou o diretório não existe)"
-    if [[ -d "$HOME/qmk_firmware" ]]; then
-        # `qmk setup` com clone existente (opção "keep") usa o diretório mas NÃO
-        # grava user.qmk_home — apontamos a config direto, sem re-setup
-        autofix "qmk config user.qmk_home=$HOME/qmk_firmware   (firmware já existe no local padrão)"
-        qmk config "user.qmk_home=$HOME/qmk_firmware" || true
-    else
-        autofix "qmk setup -b main $FIRMWARE_REPO"
-        qmk setup -b main "$FIRMWARE_REPO" || true
+    QMK_PADRAO="$HOME/qmk_firmware"
+    if ! qmk_home_ok "$QMK_PADRAO"; then
+        autofix "qmk setup -H $QMK_PADRAO -b main -y $FIRMWARE_REPO"
+        if ! qmk setup -H "$QMK_PADRAO" -b main -y "$FIRMWARE_REPO" ||
+           ! qmk_home_ok "$QMK_PADRAO"; then
+            erro "Não foi possível preparar o fork QMK em $QMK_PADRAO."
+            exit 1
+        fi
     fi
+    # O QMK CLI pode omitir esse registro quando -H já é o caminho padrão.
+    qmk config "user.qmk_home=$QMK_PADRAO" || { erro "Não foi possível salvar user.qmk_home."; exit 1; }
     QMK_HOME="$(qmk_home || true)"
     if qmk_home_ok "$QMK_HOME"; then
         item "$S_OK" "Firmware" "user.qmk_home: $QMK_HOME (corrigido agora)"
@@ -258,7 +270,7 @@ if ! QMK_USERSPACE="$REPO_ROOT" qmk compile -kb "$KEYBOARD" -km "$KEYMAP"; then
 fi
 
 UF2="$QMK_HOME/${KEYBOARD//\//_}_${KEYMAP}.uf2"
-if [[ ! -f "$UF2" ]]; then
+if [[ ! -s "$UF2" ]]; then
     erro "Firmware esperado não encontrado: $UF2"
     info "Confira o nome do arquivo gerado na saída do compile acima."
     exit 3
@@ -286,43 +298,79 @@ if [[ "$FLASH" -eq 0 ]]; then
     exit 0
 fi
 
-caixa_bootloader
-
-encontra_volume_uf2() {
-    shopt -s nullglob
-    local candidatos=( "/run/media/$USER"/RPI-RP2* "/media/$USER"/RPI-RP2* /mnt/RPI-RP2* )
-    if [[ ${#candidatos[@]} -gt 0 ]]; then
-        printf '%s\n' "${candidatos[0]}"
-    fi
+encontra_dispositivos_uf2() {
+    local discos
+    discos="$(lsblk --noheadings --raw --paths --output NAME,LABEL)" || return 1
+    awk '$2 == "RPI-RP2" {print $1}' <<< "$discos"
 }
 
-volume=""
-for ((i = 0; i < ESPERA_BOOTLOADER_SEG; i++)); do
-    volume="$(encontra_volume_uf2)"
-    if [[ -n "$volume" ]]; then break; fi
-    if [[ -t 1 ]]; then
-        printf '\r  %s%s%s Aguardando o volume RPI-RP2 (%2ds/%ds)...' \
-            "$C_CIANO" "${SPINNER_FRAMES[i % ${#SPINNER_FRAMES[@]}]}" "$C_RESET" \
-            "$i" "$ESPERA_BOOTLOADER_SEG"
-    elif (( i == 0 )); then
-        info "Aguardando o volume RPI-RP2 por até ${ESPERA_BOOTLOADER_SEG}s..."
+montagem_uf2() {
+    local alvo
+    alvo="$(findmnt --first-only --noheadings --raw --source "$1" --output TARGET)" || return 1
+    printf '%b\n' "$alvo"
+}
+
+grava_metade() {
+    local lado="$1" dispositivos dispositivo volume inicio=$SECONDS
+    if [[ "$KEYBOARD" == "$KEYBOARD_PADRAO" ]]; then
+        caixa_bootloader "$lado"
+    else
+        info "Coloque o teclado em modo bootloader UF2."
     fi
-    sleep 1
-done
-if [[ -t 1 ]]; then printf '\r%70s\r' ''; fi
+    info "Aguardando o volume RPI-RP2 por até ${ESPERA_BOOTLOADER_SEG}s..."
+    while (( SECONDS - inicio < ESPERA_BOOTLOADER_SEG )); do
+        dispositivos="$(encontra_dispositivos_uf2)" || return 4
+        case "$dispositivos" in
+            '') sleep 1 ;;
+            *$'\n'*) erro "Há mais de um RPI-RP2 conectado; deixe só o alvo."; return 4 ;;
+            *) dispositivo="$dispositivos"; break ;;
+        esac
+    done
+    if [[ -z "${dispositivo:-}" ]]; then
+        erro "Volume RPI-RP2 não apareceu. Confira o modo bootloader e o cabo USB de dados."
+        return 4
+    fi
+    if ! volume="$(montagem_uf2 "$dispositivo")"; then
+        info "Montando $dispositivo..."
+        if command -v udisksctl >/dev/null; then
+            udisksctl mount --block-device "$dispositivo" || true
+        fi
+        if ! volume="$(montagem_uf2 "$dispositivo")"; then
+            erro "Monte o volume RPI-RP2 no gerenciador de arquivos e rode novamente."
+            return 4
+        fi
+    fi
+    if [[ ! -w "$volume" ]] ||
+       ! grep -Eq '^Board-ID: RPI-RP2[[:space:]]*$' "$volume/INFO_UF2.TXT"; then
+        erro "O volume $volume não é gravável ou não foi reconhecido como bootloader RP2040."
+        return 4
+    fi
 
-if [[ -z "$volume" ]]; then
-    erro "Volume RPI-RP2 não apareceu em ${ESPERA_BOOTLOADER_SEG}s."
-    info "Confirme o modo bootloader e rode novamente com --flash."
-    exit 4
+    info "Gravando $(basename "$UF2") em $volume. Não remova o cabo USB."
+    if ! dd if="$UF2" of="$volume/$(basename "$UF2")" conv=fsync status=none; then
+        erro "A gravação não pôde ser confirmada. Veja se o teclado reiniciou e teste as teclas."
+        return 4
+    fi
+
+    inicio=$SECONDS
+    while (( SECONDS - inicio < ESPERA_BOOTLOADER_SEG )); do
+        dispositivos="$(encontra_dispositivos_uf2)" || return 4
+        if ! grep -Fxq -- "$dispositivo" <<< "$dispositivos"; then
+            ok "UF2 enviado; o volume do bootloader desapareceu."
+            return 0
+        fi
+        sleep 1
+    done
+    erro "A cópia terminou, mas o bootloader não saiu. Confira a conexão e o firmware."
+    return 4
+}
+
+grava_metade direita
+if (( AMBAS )); then
+    grava_metade esquerda
+    info "Reconecte o USB à direita para usar o teclado."
+    resumo "UF2 enviado às duas metades"
+else
+    resumo "UF2 enviado"
 fi
-ok "Volume do bootloader: $volume"
-
-info "Gravando $(basename "$UF2")..."
-if ! cp "$UF2" "$volume/"; then
-    erro "Falha ao copiar o firmware para $volume."
-    exit 4
-fi
-ok "Firmware gravado — o teclado reinicia sozinho ao fim da cópia."
-
-resumo "gravado via UF2 em $volume"
+info "Teste o teclado e as camadas alteradas."

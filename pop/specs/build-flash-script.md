@@ -4,67 +4,68 @@ project: QMK Userspace
 domain: build
 kind: contract
 status: draft
-implementation: planned
+implementation: implemented
 origin: "1.2"
 created: 2026-08-24
-updated: 2026-08-24
+updated: 2026-11-21
 supersedes: []
 superseded_by:
 ---
 
-# Spec — Script de build/flash (`scripts/build_flash.sh`)
+# Spec — Build e flash local do Dilemma V3
 
 ## Contract
 
-O userspace tem um único caminho documentado de build/flash local: o script `scripts/build_flash.sh` na raiz do repo, executado pelo dono. O script **detecta e executa as correções documentadas** — ao falhar um check de preflight, ele mesmo roda `git submodule update --init modules/bastardkb`, `qmk config user.qmk_home=<path>` (firmware já clonado no local padrão) ou `qmk setup -b main bastardkb/bastardkb-qmk`, revalida e segue; só aborta se a correção não resolver. A instalação do QMK CLI segue como decisão do dono (detecta e instrui).
+Na raiz do repositório, rode `./flash.sh` em um terminal para compilar o keymap `vendor` do Dilemma V3 (3×5+3 Procyon) uma vez e gravar a metade direita e depois a esquerda, com o mesmo UF2. Use `./flash.sh --compile-only` para gerar só o `.uf2`.
+
+O guia prepara as dependências e delega a compilação e o flash a `scripts/build_flash.sh`. Na metade ligada por USB, segure a tecla inferior externa (`/` na direita ou `Z` na esquerda) para ativar Ponteiro e, sem soltar, pressione a tecla superior externa da mesma metade (`BOOT`). O atalho depende do firmware já gravado. Mantenha o TRRS conectado, use um cabo USB de dados e não retire o USB durante a escrita. Ao terminar, reconecte à direita e teste as teclas. Se o atalho não funcionar, consulte o [guia oficial de recuperação](https://docs.bastardkb.com/fw/flashing.html).
 
 ## Expected behavior
 
-- Dado o repo clonado, quando o dono roda `scripts/build_flash.sh`, então o script exibe um CLI com hierarquia clara (banner, seções por passo, checklist alinhado, resumo final) e executa preflight → compile; qualquer falha de ambiente dispara a correção documentada, que é executada e revalidada antes de seguir.
-- Dado um preflight aprovado, quando o compile termina, então o caminho do `.uf2` gerado é exibido.
-- Dado o compile concluído sem `--flash`, quando o script termina, então nenhuma gravação no teclado foi tentada e o comando para gravar é exibido.
-- Dado `--flash` e o teclado em bootloader, quando o volume `RPI-RP2` aparece (até 60 s, com spinner de espera), então o `.uf2` é copiado para ele e o sucesso é confirmado.
+- O guia verifica as aplicações necessárias para o modo escolhido. No Arch, oferece instalar as ausentes via `sudo pacman -S --needed`; em outras distribuições, informa as dependências que precisam ser instaladas.
+- O motor inicializa o submódulo se necessário, prepara/configura o checkout QMK no primeiro uso e exibe o caminho do `.uf2` após o build.
+- No modo de gravação, aguarda até 60 s pelo volume `RPI-RP2` da metade indicada. Se necessário, tenta montá-lo com `udisksctl`. Copia o UF2 somente para um volume único, gravável e identificado como bootloader RP2040. Confere o desaparecimento do volume antes de concluir ou avançar para a outra metade.
 
 ## Invariants
 
-- Flash nunca é implícito: somente atrás da flag explícita `--flash`.
-- Toda falha de preflight dispara o auto-fix documentado; a correção é revalidada e, se não resolver, o script termina imediatamente com o comando corretivo exato (fail-fast, saída `1`).
-- O auto-fix é limitado às correções documentadas (init do submódulo; `qmk config user.qmk_home` para firmware no local padrão; `qmk setup -b main` do fork); o script não instala programas — o QMK CLI ausente é apenas detectado e instruído.
+- `./flash.sh` é o ponto de entrada interativo para gravar. `--compile-only` nunca procura nem grava volume USB. O motor, quando chamado diretamente, só grava com `--flash` ou `--both`.
+- A preparação não apaga nem atualiza automaticamente um checkout de firmware existente. O script inteiro não deve ser executado como root; a instalação de pacotes, quando necessária, pede confirmação pelo `pacman`.
 - Mensagens ao usuário em pt-BR; cores desligadas fora de terminal ou com `NO_COLOR`.
 - Nenhum artefato de build (`*.uf2`, `*.hex`, `*.bin`) é gerado dentro do repo (o compile escreve em `user.qmk_home`).
 
 ## Interfaces
 
-- **Input (CLI):** `-k|--keyboard <alvo>` (padrão `bastardkb/dilemma/3x5_3_procyon`), `-m|--keymap <nome>` (padrão `vendor`), `--flash` (opt-in), `-h|--help`. Sem argumentos posicionais.
-- **Output:** banner de abertura, passos numerados (preflight, compile, flash) em seções com régua, checklist com `✔`/`✘`/`➜`/`⚙` em colunas alinhadas, caixa de instruções de bootloader, spinner na espera do volume e resumo final; erros e correções em stderr; `--help` documenta todas as opções, os padrões, os códigos de saída e exemplos.
+- **Guia na raiz:** `./flash.sh [--compile-only]` ou `./flash.sh --help`.
+- **Motor:** `scripts/build_flash.sh [-k|--keyboard <alvo>] [-m|--keymap <nome>] [--flash | --both]`; os padrões são `bastardkb/dilemma/3x5_3_procyon` e `vendor`. `--both` é específico desse modelo. Sem argumentos posicionais.
+- **Output:** passos numerados, caminho do UF2, instruções de bootloader e resumo final; erros em stderr.
 - **Códigos de saída:** `0` sucesso · `1` falha de preflight · `2` uso inválido · `3` falha no compile · `4` falha no flash.
-- **Ambiente consumido:** `qmk` CLI no PATH; submódulo `modules/bastardkb` inicializado; `user.qmk_home` configurado e existente; volume UF2 `RPI-RP2` montado em `/run/media/$USER`, `/media/$USER` ou `/mnt` (modo bootloader).
+- **Ambiente:** Bash em Linux, QMK CLI e toolchain de compilação; para gravação, `lsblk`, `findmnt` e montagem de volume USB (`udisksctl` quando não há montagem automática).
 
 ## Errors and limits
 
-- **qmk ausente:** erro + instrução de instalação (pacman ou pip); saída `1`. Sem auto-fix.
+- **Dependência ausente:** o guia tenta instalar no Arch após confirmação ou orienta a instalar manualmente; falha ou recusa interrompe antes do build. Ao chamar só o motor, QMK CLI ausente é um erro com instrução de instalação.
 - **Submódulo não inicializado/vazio:** o script executa `git submodule update --init modules/bastardkb` e revalida; se não resolver, erro + comando corretivo; saída `1`.
-- **`user.qmk_home` ausente ou inválido:** se o firmware já existe no local padrão (`~/qmk_firmware`), o script grava a config com `qmk config user.qmk_home=<path>` — `qmk setup` com clone existente (opção "keep") não grava a config; senão executa `qmk setup -b main bastardkb/bastardkb-qmk`. Revalida; se não resolver, erro + comando corretivo; saída `1`. A leitura tolera o formato real do qmk 1.2 (`user.qmk_home=<valor> (origem)`).
+- **`user.qmk_home` ausente ou inválido:** reutiliza um checkout válido em `~/qmk_firmware` ou chama `qmk setup -H ~/qmk_firmware -b main -y bastardkb/bastardkb-qmk`. Grava `user.qmk_home` explicitamente e revalida; saída `1` se o ambiente continuar inválido.
 - **Compile falha ou `.uf2` não encontrado:** erro apontando a saída do compile/`qmk doctor`; saída `3`.
-- **Volume UF2 não aparece em 60 s ou cópia falha:** erro + instrução de confirmar o modo bootloader; saída `4`. Sem automação de montagem além da detecção simples do volume.
+- **Volume ausente, ambíguo, inválido ou não montável; erro de escrita ou reinício não observado:** mensagem de diagnóstico e saída `4`, sem avançar para a outra metade.
 
 ## Conformance criteria
 
 - [ ] `bash -n` e leitura confirmam bash válido, shebang e fail-fast (`set -euo pipefail`).
-- [ ] Os 3 checks de preflight existem; os dois documentados (submódulo e `user.qmk_home`) executam o auto-fix, revalidam e falham rápido se persistir; `qmk` ausente só instrui.
-- [ ] O default é `bastardkb/dilemma/3x5_3_procyon` + `vendor`, sobrescrevível por `-k`/`-m` e documentado no `--help`.
-- [ ] Sem `--flash`, nenhuma gravação é tentada; com `--flash`, instruções de bootloader são exibidas antes da espera pelo volume.
-- [ ] Execução ponta-a-ponta pelo dono (compile gera o `.uf2`; `--flash` grava via UF2) — checklist humano da task de origem.
+- [ ] O guia verifica dependências antes do build; o motor prepara o submódulo e o firmware.
+- [ ] O padrão é Dilemma V3 + `vendor`; `--compile-only` não acessa USB.
+- [ ] Flash exige um único volume RP2040; no guia da raiz, a direita deve sair do bootloader antes de iniciar a esquerda.
+- [ ] Teste físico: o volume desaparece após gravar, o teclado volta a funcionar com USB à direita e as camadas atualizadas respondem.
 
 ## Out of scope
 
-- Instalação de programas (QMK CLI e afins) e qualquer correção de ambiente além das duas documentadas: instruída, jamais executada pelo script.
-- Flash por outro mecanismo (dfu, avrdude etc.) e automação de montagem de volumes.
+- Instalação automática de pacotes em distribuições sem `pacman`.
+- Flash por outro mecanismo (DFU, avrdude etc.).
 - Build remoto/CI — proibido por decisão do projeto (ver [[pop/PROJECT|PROJECT]]).
 
 ## Open questions
 
-- O nome do volume do bootloader (`RPI-RP2`) e seus pontos de montagem cobrem o sistema do dono; validar na primeira execução real (task 1.2.2).
+- Confirmar a montagem e o reinício com o Dilemma V3 físico nas duas metades.
 
 ## Related references
 

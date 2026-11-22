@@ -9,15 +9,30 @@ import (
 )
 
 const (
-	minColumns = 64
-	minRows    = 18
+	minColumns = 85
+	minRows    = 24
+	handGap    = "     "
 	waiting    = "Aguardando o teclado Dilemma V3."
-	legendHead = "Legenda · mapa fixo do keymap vendor"
+	legendHead = "LEGENDA  /  keymap vendor"
 	pairs      = "a·b: toque = a; segurar = b. Tecla isolada: ação direta."
 	inherit    = "▽ transparente: herda de uma camada inferior.  × sem ação."
 )
 
-var heading = lipgloss.NewStyle().Bold(true)
+var (
+	backdrop = lipgloss.Color("#0D1023")
+	ink      = lipgloss.Color("#EFF3FF")
+	muted    = style("#9CA9D5")
+	stroke   = style("#675995")
+	heading  = style("#E8D2FF").Bold(true)
+	live     = style("#5FFFD1").Bold(true)
+	idle     = style("#FFD18A").Bold(true)
+	left     = style("#8CEFFF")
+	right    = style("#FFA6EC")
+	legend   = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#8F72CD")).Padding(0, 2).Foreground(ink)
+)
+
+func style(hex string) lipgloss.Style { return lipgloss.NewStyle().Foreground(lipgloss.Color(hex)) }
 
 type model struct {
 	width, height int
@@ -64,63 +79,53 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *model) View() tea.View {
 	v := tea.NewView(m.content)
 	v.AltScreen = true
+	v.WindowTitle = "Dilemma V3 · Monitor de camadas"
+	v.BackgroundColor, v.ForegroundColor = backdrop, ink
 	return v
 }
 
 func (m *model) render() string {
 	if m.width < minColumns || m.height < minRows {
+		size := fmt.Sprintf("%d×%d", minColumns, minRows)
 		if m.width < 18 {
-			return "64×18"
+			return size
 		}
-		return "Amplie para 64×18."
+		return "Amplie para " + size + "."
 	}
+
+	keyWidth := min((m.width-9)/10-1, 11)
+	handWidth := 5*(keyWidth+1) + 1
+	panelWidth := 2*handWidth + len(handGap)
+	card := legend.Width(panelWidth)
+	center := func(text string) string {
+		return lipgloss.PlaceHorizontal(panelWidth, lipgloss.Center, text)
+	}
+	title := center(neonBanner) + "\n" + center(muted.Render("MONITOR DE CAMADAS  //  PROCYON"))
+	var upper, lower string
 	if m.layer < 0 {
-		return heading.Render("Dilemma V3 · Sem camada confirmada") + "\n\n" +
-			lipgloss.NewStyle().Width(m.width).Render(m.status) + "\n\nq: sair"
-	}
+		upper = title + "\n\n" + center(idle.Render("○  Sem camada confirmada")) +
+			"\n" + center(lipgloss.NewStyle().Width(panelWidth).Align(lipgloss.Center).Render(m.status))
+		lower = card.Render(
+			heading.Render("TELEMETRIA USB") + "\nO mapa aparece quando o firmware informa a camada ativa.\n" +
+				muted.Render("q: sair"))
+	} else {
+		layer := &layerMaps[m.layer]
+		name := heading.Render(fmt.Sprintf("Camada %d · %s", m.layer, layer.name))
+		upper = title + "\n" + center(live.Render("● USB")+"   "+name+"   "+muted.Render("q: sair")) + "\n" +
+			lipgloss.PlaceHorizontal(handWidth, lipgloss.Center, left.Render("01  ESQUERDA")) + handGap +
+			lipgloss.PlaceHorizontal(handWidth, lipgloss.Center, right.Render("02  DIREITA")) +
+			keyboard(layer, keyWidth, m.height >= 32)
 
-	layer := &layerMaps[m.layer]
-	keyWidth := min((m.width-14)/10, 9) // Dez teclas, doze bordas e vão de duas células.
-	halfWidth := 5*(keyWidth+1) + 1
-	var screen strings.Builder
-	fmt.Fprintf(&screen, "%s   q: sair\n", heading.Render(fmt.Sprintf("Dilemma V3 · Camada %d · %s", m.layer, layer.name)))
-	screen.WriteString(lipgloss.PlaceHorizontal(halfWidth, lipgloss.Center, "Esquerda"))
-	screen.WriteString("  ")
-	screen.WriteString(lipgloss.PlaceHorizontal(halfWidth, lipgloss.Center, "Direita"))
-	topRows := 2
-	for row := range 4 {
-		screen.WriteByte('\n')
-		if row > 0 && m.height >= 26 {
-			screen.WriteByte('\n')
-			topRows++
+		var guide strings.Builder
+		guide.WriteString(heading.Render(legendHead))
+		guide.WriteByte('\n')
+		guide.WriteString(muted.Render(pairs + "\n" + inherit))
+		for _, text := range layer.legend {
+			guide.WriteByte('\n')
+			guide.WriteString(stroke.Render("•") + " " + text)
 		}
-		start, count := row*10, 5
-		if row == 3 {
-			count = 3
-			screen.WriteString(strings.Repeat(" ", 2*(keyWidth+1)))
-		}
-		writeHand(&screen, layer.keys[start:start+count], keyWidth)
-		screen.WriteString("  ")
-		writeHand(&screen, layer.keys[start+count:start+2*count], keyWidth)
-		topRows++
+		lower = card.Render(guide.String())
 	}
-	screen.WriteString(strings.Repeat("\n", m.height/2-topRows+1))
-	screen.WriteString(heading.Render(legendHead))
-	for _, text := range []string{pairs, inherit} {
-		screen.WriteByte('\n')
-		screen.WriteString(text)
-	}
-	for _, text := range layer.legend {
-		screen.WriteByte('\n')
-		screen.WriteString(text)
-	}
-	return lipgloss.PlaceHorizontal(m.width, lipgloss.Center, screen.String())
-}
-
-func writeHand(screen *strings.Builder, keys []string, width int) {
-	screen.WriteRune('│')
-	for _, key := range keys {
-		screen.WriteString(lipgloss.PlaceHorizontal(width, lipgloss.Center, key))
-		screen.WriteRune('│')
-	}
+	upper = lipgloss.PlaceVertical(m.height/2, lipgloss.Center, upper)
+	return lipgloss.PlaceHorizontal(m.width, lipgloss.Center, upper+"\n"+lower)
 }
